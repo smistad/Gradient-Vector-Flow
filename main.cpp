@@ -22,8 +22,13 @@
 #endif
 
 int main(int argc, char ** argv) {
-    const float mu = 0.05f;
-    const int iterations = 256;
+    if(argc != 4) {
+        std::cout << "Usage: " << argv[0] << " filename.mhd mu iterations" << std::endl;
+        return 0;
+    }
+
+    const float mu = atof(argv[2]);
+    const int iterations = atoi(argv[3]);
     INIT_TIMER
 
     // Load MHD volume specified in arguments using SIPL
