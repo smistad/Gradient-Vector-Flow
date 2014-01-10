@@ -22,7 +22,7 @@
 #endif
 
 int main(int argc, char ** argv) {
-    const float mu = 0.2f;
+    const float mu = 0.05f;
     const int iterations = 256;
     INIT_TIMER
 

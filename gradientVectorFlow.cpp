@@ -1,5 +1,6 @@
 #include "gradientVectorFlow.hpp"
 #include <cmath>
+#include <iostream>
 using namespace SIPL;
 
 Volume<float3> * GVF(
@@ -10,14 +11,21 @@ Volume<float3> * GVF(
     Volume<float3> * vectorField = new Volume<float3>(initialVectorField->getSize());
     Volume<float3> * temp;
     // TODO neumann boundary cond.
+    std::cout << "GVF iteration:";
     for(int i = 0; i < iterations; ++i) {
         if(i > 0)
             delete temp;
         Volume<float3> * newVectorField = new Volume<float3>(initialVectorField->getSize());
-        for(int z = 1; z < vectorField->getDepth()-1; z++) {
-        for(int y = 1; y < vectorField->getHeight()-1; y++) {
-        for(int x = 1; x < vectorField->getWidth()-1; x++) {
+        for(int z = 0; z < vectorField->getDepth(); z++) {
+        for(int y = 0; y < vectorField->getHeight(); y++) {
+        for(int x = 0; x < vectorField->getWidth(); x++) {
             int3 pos(x,y,z);
+
+            // Neumann boundary conditions (if a coordinate is 0, change it to 2.
+            pos.x = x == 0 ? 2 : pos.x;
+            pos.y = y == 0 ? 2 : pos.y;
+            pos.z = z == 0 ? 2 : pos.z;
+
             float3 v = vectorField->get(pos);
             float3 f = initialVectorField->get(pos);
             float3 laplacian = -6*v
@@ -32,6 +40,9 @@ Volume<float3> * GVF(
         }}}
         temp = vectorField;
         vectorField = newVectorField;
+        if(i % 25 == 0)
+            std::cout << std::endl;
+        std::cout << i << " ";
     }
 
     return vectorField;
@@ -39,6 +50,7 @@ Volume<float3> * GVF(
 
 Volume<float3> * createVectorField(Volume<float> * v) {
     Volume<float3> * initialVectorField = new Volume<float3>(v->getSize());
+    initialVectorField->fill(float3(0,0,0));
     for(int x = 1; x < v->getWidth()-1; x++) {
     for(int y = 1; y < v->getHeight()-1; y++) {
     for(int z = 1; z < v->getDepth()-1; z++) {
