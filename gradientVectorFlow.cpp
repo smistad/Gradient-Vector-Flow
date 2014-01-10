@@ -21,10 +21,13 @@ Volume<float3> * GVF(
         for(int x = 0; x < vectorField->getWidth(); x++) {
             int3 pos(x,y,z);
 
-            // Neumann boundary conditions (if a coordinate is 0, change it to 2.
+            // Neumann boundary conditions (if a coordinate is 0, change it to 2. If coordinate is equal to the size-1 move it to size-3)
             pos.x = x == 0 ? 2 : pos.x;
             pos.y = y == 0 ? 2 : pos.y;
             pos.z = z == 0 ? 2 : pos.z;
+            pos.x = x == vectorField->getWidth()-1 ? vectorField->getWidth()-3 : pos.x;
+            pos.y = y == vectorField->getHeight()-1 ? vectorField->getHeight()-3 : pos.y;
+            pos.z = z == vectorField->getDepth()-1 ? vectorField->getDepth()-3 : pos.z;
 
             float3 v = vectorField->get(pos);
             float3 f = initialVectorField->get(pos);
