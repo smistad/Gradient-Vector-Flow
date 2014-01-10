@@ -23,23 +23,23 @@
 
 int main(int argc, char ** argv) {
     const float mu = 0.2f;
+    const int iterations = 256;
     INIT_TIMER
 
     // Load MHD volume specified in arguments using SIPL
     SIPL::Volume<float> * volume = new SIPL::Volume<float>(argv[1], SIPL::IntensityTransformation(SIPL::NORMALIZED));
     SIPL::int3 size = volume->getSize();
 
-    // Create vector field on the GPU
+    // Create initial vector field
+    SIPL::Volume<SIPL::float3> * initialVectorField = createVectorField(volume);
 
-    // Call the runFMGGVF method
+    // Call the GVF method
     START_TIMER
-
-    STOP_TIMER("FMG GVF")
+    SIPL::Volume<SIPL::float3> * result = GVF(initialVectorField, iterations, mu);
+    STOP_TIMER("GVF")
     
-    SIPL::Volume<SIPL::float3> * result = new SIPL::Volume<SIPL::float3>(size);
-    result->setData(data);
-
-    std::cout << "Maximum magnitude of residuals was: " << calculateMaxResidual(result, volume, mu) << std::endl;
+    // Calculate the error
+    std::cout << "Maximum magnitude of residuals (error) was: " << calculateMaxResidual(result, initialVectorField, mu) << std::endl;
     delete volume;
 
     result->display(0.0, 0.1);
